@@ -1,0 +1,54 @@
+Written for AWS CLI
+
+To Updgrade CLI and verify:
+ curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+ unzip awscliv2.zip
+ sudo ./aws/install
+ . ~/.bashrc 
+ aws --version
+
+Source code needed:
+ wget https://aws-tc-largeobjects.s3.us-west-2.amazonaws.com/DEV-AWS-MO-ContainersRedux/downloads/containers-src.zip
+ unzip containers-src.zip
+
+Change to cloud9 containers role:
+ export ASSOC_ID="`aws ec2 describe-iam-instance-profile-associations | grep AssociationId | cut -f2- -d: | tr -d ',' | xargs`"
+ aws ec2 replace-iam-instance-profile-association --iam-instance-profile Name=cloud9-containers-role --association-id $ASSOC_ID
+
+Disable managed credentials and change to cloud9 ones/from Cloudformation:
+ aws cloud9 update-environment  --environment-id $C9_PID --managed-credentials-action DISABLE
+
+Change directory:
+ cd first-container/
+ 
+Inspect dockerfile, create container image:
+ docker build -t first-container .
+
+View docker images:
+ docker image ls
+
+From this list, see app running at Port 8080 and publish to your cloud9 instance, make first-container available on port 8080:
+ docker run -d -p 8080:8080 --name webapp first-container
+
+To view running docker containers:
+ docker ps
+
+To view container logs:
+ docker logs webapp
+
+Now you should be viewing in browser
+Select "preview" from top of cloud9 page, then "preview running application"
+Use this command to launch a shell inside the container:
+ docker exec -it webapp /bin/sh
+
+To view contents of /app folder and its file(s):
+ ls /app
+ cat /app/input.txt
+
+View process list:
+ ps -a
+
+Ctrl+D to escape container
+To stop/remove the running container:
+ docker stop webapp
+ docker rm webapp
